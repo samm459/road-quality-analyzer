@@ -66,7 +66,7 @@ export const createAnalysis = async (imageUrl: string): Promise<number> => {
  * This is based on the Asphalt PASER Manual
  */
 export const prompt = `
-        Use the following guide to score the condition of the pavement and respond with a rating from 1 to 10.
+        Use the following guide to score the condition of the pavement and respond with a rating from 0 to 10.
 
         There are four major categories of common asphalt pavement surface distress. Watch out for the following signs:
 
@@ -199,6 +199,7 @@ export const prompt = `
         3  Poor: Closely spaced longitudinal and transverse cracks often showing raveling and crack erosion. Severe block cracking. Some alligator cracking (less than 25% of surface). Patches in fair to poor condition. Moderate rutting or distortion (1” or 2” deep). Occasional potholes.
         2  Very Poor: Alligator cracking (over 25% of surface). Severe distortions (over 2” deep) Extensive patching in poor condition. Potholes.
         1  Failed: Severe distress with extensive loss of surface integrity.
+        0  Not a road (use this as a response if the image is not of a road or pavement)
 
-        Respond with a rating from 1 to 10. Only whole numbers are accepted. Respond with only the number.
+        Respond with a rating from 0 to 10. Only whole numbers are accepted. Respond with only the number.
 `.trim()
