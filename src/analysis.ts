@@ -3,7 +3,7 @@ import { OpenAI } from 'openai'
 /**
  * createAnalysis
  * 
- * Analyzes the condition of the pavement in the image and returns a number between 1 and 10 representing the condition of the pavement.
+ * Analyzes an image of a road and returns a number between 1 and 10 representing the condition of the pavement. Returns 0 if the image is not of a road.
  * 
  * @param imageUrl The URL of the image to analyze
  * @returns a number between 1 and 10 representing the condition of the pavement
