@@ -30,7 +30,7 @@ Send a POST request to http://localhost:3000/api/analysis. Your request body sho
 
 You may add any valid image url into your request for analysis so long as it is publicly available.
 
-#### 4. Check out the response
+#### 4. Review the result
 
 The response will follow this schema:
 
