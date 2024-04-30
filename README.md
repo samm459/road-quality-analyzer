@@ -1,6 +1,6 @@
 # Road Quality Analyzer
 
-This application can accept images of roads, and return a score according to the Asphalt PASER Manual.
+This application can accept images of roads, and return a rating according to the Asphalt PASER Manual.
 
 ## Get started
 
