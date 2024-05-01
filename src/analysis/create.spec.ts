@@ -84,7 +84,8 @@ describe("createAnalysis", () => {
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": imageUrl
+                                "url": imageUrl,
+                                "detail": "high"
                             }
                         }
                     ]

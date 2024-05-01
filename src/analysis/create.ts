@@ -28,15 +28,14 @@ export const createAnalysis = async (imageUrl: string): Promise<Analysis> => {
                 role: 'user',
                 content: [
                     {
-                        // Set the prompt to the prompt text
                         type: "text",
                         text: prompt,
                     },
                     {
-                        // Set the image_url to the base64 encoded image
                         "type": "image_url",
                         "image_url": {
-                            "url": imageUrl
+                            "url": imageUrl,
+                            "detail": "high"
                         }
                     }
                 ]
