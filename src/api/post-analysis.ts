@@ -1,6 +1,10 @@
 import { object, ValidationError, string } from 'yup'
-import { createAnalysis } from '../analysis'
+import { createAnalysis } from '../analysis/create'
 import express from 'express'
+
+export interface POSTAnalysisRequestBody {
+    imageUrl: string
+}
 
 export const handlePOSTAnalysis = async (req: express.Request, res: express.Response) => {
     const schema = object().shape({
@@ -8,10 +12,10 @@ export const handlePOSTAnalysis = async (req: express.Request, res: express.Resp
     })
 
     try {
-        const { imageUrl } = await schema.validate(req.body)
-        const rating = await createAnalysis(imageUrl)
+        const { imageUrl } = await schema.validate(req.body) as POSTAnalysisRequestBody
+        const analysis = await createAnalysis(imageUrl)
 
-        res.json({ rating })
+        res.json(analysis)
     } catch (error) {
         if (error instanceof ValidationError) {
             res.status(400).json(error)

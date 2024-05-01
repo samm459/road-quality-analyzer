@@ -1,12 +1,35 @@
-import { createAnalysis } from "./analysis"
+import { createAnalysis } from "./create"
 import { OpenAI } from 'openai'
 
 jest.mock('openai', () => {
+    const mockResponse = {
+        valid_image: true,
+        rating: 5,
+        raveling: "none",
+        flushing: "none",
+        polishing: "moderate",
+        rutting: "mild",
+        distortion: "none",
+        rippling: "none",
+        shoving: "none",
+        settling: "none",
+        frost_heave: "none",
+        transverse_cracks: "mild",
+        reflection_cracks: "none",
+        slippage_cracks: "none",
+        longitudinal_cracks: "mild",
+        block_cracks: "severe",
+        alligator_cracks: "none",
+        patches: "none",
+        potholes: "mild",
+        reasoning: "This is a test"
+    }
+
     const create = jest.fn().mockResolvedValue({
         choices: [
             {
                 message: {
-                    content: "5",
+                    content: JSON.stringify(mockResponse),
                 },
             },
         ],
@@ -61,7 +84,8 @@ describe("createAnalysis", () => {
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": imageUrl
+                                "url": imageUrl,
+                                "detail": "high"
                             }
                         }
                     ]
@@ -70,11 +94,32 @@ describe("createAnalysis", () => {
         })
     })
 
-    it("extracts the rating from the response", async () => {
+    it("extracts the analysis from the response", async () => {
         const imageUrl = "https://example.com/image.jpg"
-        const rating = await createAnalysis(imageUrl)
+        const analysis = await createAnalysis(imageUrl)
 
-        expect(rating).toBe(5)
+        expect(analysis).toEqual({
+            valid_image: true,
+            rating: 5,
+            raveling: "none",
+            flushing: "none",
+            polishing: "moderate",
+            rutting: "mild",
+            distortion: "none",
+            rippling: "none",
+            shoving: "none",
+            settling: "none",
+            frost_heave: "none",
+            transverse_cracks: "mild",
+            reflection_cracks: "none",
+            slippage_cracks: "none",
+            longitudinal_cracks: "mild",
+            block_cracks: "severe",
+            alligator_cracks: "none",
+            patches: "none",
+            potholes: "mild",
+            reasoning: "This is a test"
+        })
     })
 
     it("throws an error if the response is not valid", async () => {
@@ -87,7 +132,7 @@ describe("createAnalysis", () => {
                         choices: [
                             {
                                 message: {
-                                    content: "invalid",
+                                    content: "{}",
                                 },
                             },
                         ],
@@ -96,6 +141,6 @@ describe("createAnalysis", () => {
             },
         }))
 
-        await expect(createAnalysis(imageUrl)).rejects.toThrow('Invalid response')
+        await expect(createAnalysis(imageUrl)).rejects.toThrow('Invalid analysis from AI')
     })
 })
