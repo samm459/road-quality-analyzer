@@ -20,11 +20,11 @@ Run `yarn start` to spin up the server on localhost:3000.
 
 #### 3. Create a request
 
-Send a POST request to http://localhost:3000/api/analysis. Your request body should follow this schema:
+Send a POST request to http://localhost:3000/api/analysis. Your request body should contain JSON following this schema:
 
-```json
-{
-  "imageUrl": "https://www.ayresassociates.com/wp-content/uploads/2021/01/STH-47-Oneida-Co-ground_8562-Blog.jpg"
+```typescript
+export interface POSTAnalysisRequestBody {
+  imageUrl: string;
 }
 ```
 
@@ -32,10 +32,29 @@ You may add any valid image url into your request for analysis so long as it is 
 
 #### 4. Review the result
 
-The response will follow this schema:
+The response body will contain JSON following this schema:
 
-```json
-{
-  "rating": 10
+```typescript
+export interface Analysis {
+  valid_image: boolean;
+  rating: number;
+  ravelling: "none" | "mild" | "moderate" | "severe";
+  flushing: "none" | "mild" | "moderate" | "severe";
+  polishing: "none" | "mild" | "moderate" | "severe";
+  rutting: "none" | "mild" | "moderate" | "severe";
+  distortion: "none" | "mild" | "moderate" | "severe";
+  rippling: "none" | "mild" | "moderate" | "severe";
+  shoving: "none" | "mild" | "moderate" | "severe";
+  settling: "none" | "mild" | "moderate" | "severe";
+  frost_heave: "none" | "mild" | "moderate" | "severe";
+  transverse_cracks: "none" | "mild" | "moderate" | "severe";
+  reflection_cracks: "none" | "mild" | "moderate" | "severe";
+  slippage_cracks: "none" | "mild" | "moderate" | "severe";
+  longitudinal_cracks: "none" | "mild" | "moderate" | "severe";
+  block_cracking: "none" | "mild" | "moderate" | "severe";
+  alligator_cracking: "none" | "mild" | "moderate" | "severe";
+  patches: "none" | "mild" | "moderate" | "severe";
+  potholes: "none" | "mild" | "moderate" | "severe";
+  reasoning: string;
 }
 ```

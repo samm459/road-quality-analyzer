@@ -1,14 +1,17 @@
 import { OpenAI } from 'openai'
+import { Analysis } from '.'
+import fs from 'fs'
+import { object, string, number, boolean } from 'yup'
 
 /**
  * createAnalysis
  * 
- * Analyzes an image of a road and returns a number between 1 and 10 representing the condition of the pavement. Returns 0 if the image is not of a road.
+ * Analyzes an image of a road and returns an Analysis.
  * 
  * @param imageUrl The URL of the image to analyze
  * @returns a number between 1 and 10 representing the condition of the pavement
  */
-export const createAnalysis = async (imageUrl: string): Promise<number> => {
+export const createAnalysis = async (imageUrl: string): Promise<Analysis> => {
     // Check if the OPENAI_API_KEY environment variable is set
     if (!process.env.OPENAI_API_KEY) {
         throw new Error('Missing OPENAI_API_KEY environment variable')
@@ -41,22 +44,53 @@ export const createAnalysis = async (imageUrl: string): Promise<number> => {
         ],
     })
 
-    // Extract the rating from the response
-    const rating = response.choices[0]?.message?.content
+    // Extract the JSON string from the response
+    const analysisString = response.choices[0]?.message?.content
 
-    if (!rating) {
-        throw new Error('Failed to generate a response')
+    if (!analysisString) {
+        throw new Error('Failed to generate a response from AI')
     }
 
     // Parse the rating as a number
-    const number = parseInt(rating, 10)
+    const analysisJSON = JSON.parse(analysisString.replace("\`\`\`json\n", "").replace("\n\`\`\`", "").trim())
 
-    if (isNaN(number)) {
-        throw new Error('Invalid response')
+    // Validate the analysis object
+    const distressSchema = string().oneOf(['none', 'mild', 'moderate', 'severe'])
+    const analysisSchema = object({
+        valid_image: boolean().required(),
+        rating: number().required().min(0).max(10),
+        raveling: distressSchema,
+        flushing: distressSchema,
+        polishing: distressSchema,
+        rutting: distressSchema,
+        distortion: distressSchema,
+        rippling: distressSchema,
+        shoving: distressSchema,
+        settling: distressSchema,
+        frost_heave: distressSchema,
+        transverse_cracks: distressSchema,
+        reflection_cracks: distressSchema,
+        slippage_cracks: distressSchema,
+        longitudinal_cracks: distressSchema,
+        block_cracks: distressSchema,
+        alligator_cracks: distressSchema,
+        patches: distressSchema,
+        potholes: distressSchema,
+        reasoning: string().required(),
+    })
+
+    try {
+        // Validate the analysis object
+        await analysisSchema.validate(analysisJSON)
+
+        // Return the analysis object
+        return analysisJSON as Analysis
+    } catch (error) {
+        throw new Error(`Invalid analysis from AI`)
     }
-
-    return number
 }
+
+export const analysisInterface = fs.readFileSync('src/analysis/index.ts', 'utf-8')
 
 /**
  * prompt
@@ -66,7 +100,7 @@ export const createAnalysis = async (imageUrl: string): Promise<number> => {
  * This is based on the Asphalt PASER Manual
  */
 export const prompt = `
-        Use the following guide to score the condition of the pavement and respond with a rating from 0 to 10.
+        Use the following guide to score the condition of the pavement and respond with a JSON object following the Analysis interface.
 
         There are four major categories of common asphalt pavement surface distress. Watch out for the following signs:
 
@@ -201,5 +235,9 @@ export const prompt = `
         1  Failed: Severe distress with extensive loss of surface integrity.
         0  Not a road (use this as a response if the image is not of a road or pavement)
 
-        Respond with a rating from 0 to 10. Only whole numbers are accepted. Respond with only the number.
+        Respond with JSON object following the Analysis interface. The interface contains a raiting, a score for each of the surface distress categories, and a reasoning for the rating (a paragraph of text explaining the condition of the pavement based on the distress categories and the rating scale).
+
+        If the image is not of a road or pavement, the analysis should contain "valid_image": false and a reasoning explaining why the image is not valid. The distress categories should be set to "none" and the rating should be 0.
+
+        ${analysisInterface}
 `.trim()

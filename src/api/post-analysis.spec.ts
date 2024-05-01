@@ -1,9 +1,9 @@
 import express from "express"
 import { handlePOSTAnalysis } from "./post-analysis"
-import { createAnalysis } from "../analysis"
+import { createAnalysis } from "../analysis/create"
 import { ValidationError } from "yup"
 
-jest.mock("../analysis", () => ({
+jest.mock("../analysis/create", () => ({
     createAnalysis: jest.fn(),
 }))
 
@@ -43,10 +43,12 @@ describe("handlePOSTAnalysis", () => {
         const req = { body: { imageUrl: "https://example.com/image.jpg" } } as express.Request
         const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any as express.Response
 
-        (createAnalysis as jest.Mock).mockResolvedValueOnce(5)
+        (createAnalysis as jest.Mock).mockResolvedValueOnce({
+            rating: 0
+        })
 
         await handlePOSTAnalysis(req, res)
 
-        expect(res.json).toHaveBeenCalledWith({ rating: 5 })
+        expect(res.json).toHaveBeenCalledWith({ rating: 0 })
     })
 })
